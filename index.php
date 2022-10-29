@@ -7,7 +7,11 @@
     </head>
 
     <body>
-        <?php include("./body_include.php"); ?>
+        <?php
+            if(file_exists("./body_include.php")) {
+                include("./body_include.php");
+            }
+        ?>
     </body>
 
 </html>
