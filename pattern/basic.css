@@ -1,0 +1,93 @@
+body{
+    width: 100%;
+    height: calc(100% - 40px);
+    position: absolute;
+    margin: 0px;
+    top: 40px;
+    left: 0px;
+
+    display: flex;
+    flex-direction: column;
+
+    font-family: Microsoft JhengHeix;
+    font-size: 15pt;
+}
+
+header {
+    width: 100%;
+    height: 40px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 100;
+
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: 40px auto;
+
+    background-color: #986DB2;
+}
+
+a, a:link, a:visited {
+    text-decoration: none;
+    color: #000000;
+}
+
+body a:hover {
+    text-decoration: none;
+    color: #005caf;
+}
+
+#side-menu-but {
+    display: none;
+}
+
+#side-menu-but + label {
+    width: 40px;
+    height: 40px;
+    
+    display: block;
+
+    background-image: url("/images/side_menu_but.png");
+    background-repeat: no-repeat;
+    background-size: 40px 40px;
+
+    cursor: pointer;
+}
+
+#side-menu-but:checked + label {
+    background-image: url("/images/icon_go_back_1000.png");
+}
+
+#side-menu-but:checked ~ #side-menu {
+    transform: translateX(0);
+}
+
+#side-menu {
+    width: 300px;
+    height: calc(100% - 40px);
+    position: fixed;
+    top: 40px;
+    left: 0px;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #828282;
+
+    transform: translateX(-100%);
+    transition: 0.3s;
+}
+
+.side-menu-content {
+    width: 290px;
+    height: 35px;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    line-height: 35px;
+}
+
+.side-menu-content:hover {
+    background-color: #787878;
+}
