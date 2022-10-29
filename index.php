@@ -7,7 +7,7 @@
     </head>
 
     <body>
-        <?php include("./body_include.php") ?>
+        <h1>Test</h1>
     </body>
 
 </html>
