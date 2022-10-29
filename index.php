@@ -7,7 +7,7 @@
     </head>
 
     <body>
-        <?php include("./body_include.php"); ?>
+        <?php include("./body_include.php") ?>
     </body>
 
 </html>
