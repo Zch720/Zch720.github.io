@@ -4,6 +4,7 @@
 
     <head>
         <title>Zch Page</title>
+		<link rel="icon" href="/images/icon_go_back_1000.png" type="image/x-icon">
     </head>
 
     <style>
@@ -12,12 +13,16 @@
 
     <body>
         <header>
-            <input type="checkbox" id="side-menu-but"> <label for="side-menu-but"></label>
+            <input type="checkbox" id="side-menu-but" onclick="onClick_sideMenu(this.checked);"> <label for="side-menu-but"></label>
             <div id="side-menu">
-                <div class="side-menu-content">test</div>
+                <a class="side-menu-content" href="/index.html">Home</a>
+                <a class="side-menu-content" href="/game.html">Games</a>
             </div>
         </header>
+        <div id="side-menu-back" onclick="onClick_sideMenuBack(false);"></div>
 
     </body>
+
+    <script src="/pattern/header.js"></script>
 
 </html>

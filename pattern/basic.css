@@ -28,12 +28,12 @@ header {
     background-color: #986DB2;
 }
 
-a, a:link, a:visited {
+a, a:link, a:visited, a:hover {
     text-decoration: none;
     color: #000000;
 }
 
-body a:hover {
+main a:hover {
     text-decoration: none;
     color: #005caf;
 }
@@ -90,4 +90,17 @@ body a:hover {
 
 .side-menu-content:hover {
     background-color: #787878;
+}
+
+#side-menu-back {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 99;
+
+    display: none;
+
+    background-color: #d0d0d040;
 }
