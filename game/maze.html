@@ -1,0 +1,297 @@
+<html>
+
+	<meta charset="utf-8">
+
+	<head>
+		<title>Maze Game</title>
+		<link rel="icon" href="/images/icon_go_back_1000.png" type="image/x-icon">
+	</head>
+
+    <style>
+        @import "/pattern/basic.css";
+		@import "/pattern/game.css";
+    </style>
+
+	<!-- <style>
+		@import "/personal_page/pattern/game.css";
+	</style> -->
+
+	<body style="background-color: #00bbee;">
+        <header>
+            <input type="checkbox" id="side-menu-but" onclick="onClick_sideMenu(this.checked);"> <label for="side-menu-but"></label>
+            <div id="side-menu">
+                <a class="side-menu-content" href="/index.html">Home</a>
+                <a class="side-menu-content" href="/game.html">Games</a>
+            </div>
+        </header>
+        <div id="side-menu-back" onclick="onClick_sideMenuBack(false);"></div>
+
+		<canvas id="ans-canvas" style="display: none">
+		</canvas>
+		<canvas id="maze-canvas">
+		</canvas>
+		<canvas id="player-canvas">
+		</canvas>
+
+		<div style="position: fixed; bottom: 10px;">
+			<button style="height: 30px; width: 90px; margin-bottom: 5px;" onclick="onclickAns()">Show Anser</button>
+			<div style="display: flex; height: 30px; width: fit-context; margin-bottom: 5px;">
+				Height&nbsp;
+				<textarea id="custom-height" style="height: 80%; width: 100px; resize: none;">10</textarea>
+			</div>
+			<div style="display: flex; height: 30px; width: fit-context; margin-bottom: 5px;">
+				Width&nbsp;&nbsp;
+				<textarea id="custom-width" style="height: 80%; width: 100px; resize: none;">10</textarea>
+			</div>
+			<button style="height: 30px; width: 80px;" onclick="newMaze()">New Maze</button>
+		</div>
+
+	</body>
+
+    <script src="/pattern/header.js"></script>
+	<script src="/pattern/resource.js"></script>
+	<script src="/game/maze.js"></script>
+	<script>
+
+		var mazeCanvas = document.getElementById("maze-canvas");
+		var mazeContext = mazeCanvas.getContext('2d');
+		var playerCanvas = document.getElementById("player-canvas");
+		var playerContext = playerCanvas.getContext('2d');
+		var ansCanvas = document.getElementById("ans-canvas");
+		var ansContext = ansCanvas.getContext('2d');
+		var height = mazeCanvas.height = playerCanvas.height = ansCanvas.height = window.innerHeight;
+		var width = mazeCanvas.width = playerCanvas.width = ansCanvas.width = window.innerWidth;
+		var mazeHeight = 10;
+		var mazeWidth = 10;
+		var size, beginX, beginY, moveSpeed, x, y;
+		var maze, p;
+
+		function setVar() {
+			size = Math.min(Math.floor(height / (mazeHeight + 4)), Math.floor(width / (mazeWidth + 4)));
+			beginX = width / 2 - size * mazeWidth / 2;
+			beginY = height / 2 - size * mazeHeight / 2;
+			moveSpeed = size * 0.04;
+			maze = new Array(mazeHeight * 2 + 1);
+			for(var i = 0; i < mazeHeight * 2 + 1; i++) maze[i] = new Array(mazeWidth * 2 + 1);
+			p = new Array(mazeHeight * mazeWidth + 5);
+		}
+
+		setVar();
+		mazeGen();
+		mazeDraw();
+
+		function Player() {
+			this.x = beginX + size / 2;
+			this.y = beginY + size / 2;
+			this.color = 'rgb(255, 255, 255)';
+			this.size = size * 0.3;
+		}
+
+		Player.prototype.draw = function() {
+			playerContext.beginPath();
+			playerContext.fillStyle = this.color;
+			playerContext.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+			playerContext.fill();
+		}
+
+		Player.prototype.block = function() {
+			return {
+				x: Math.floor((this.x - beginX) / size),
+				y: Math.floor((this.y - beginY) / size)
+			}
+		}
+
+		Player.prototype.moveCheck = {
+			up: function (pos, self, only = false) {
+				var newxy = {x: self.x, y: self.y - moveSpeed};
+				var up = maze[pos.y * 2][pos.x * 2 + 1] || self.y - beginY - pos.y * size - moveSpeed > self.size + 0.5;
+				if(only) return up;
+				return this.upleft(pos, self, "up") && this.upright(pos, self, "up") && up;
+			},
+			down: function(pos, self, only = false) {
+				var newxy = {x: self.x, y: self.y + moveSpeed};
+				var down = maze[pos.y * 2 + 2][pos.x * 2 + 1] || beginY + (pos.y + 1) * size - self.y - moveSpeed > self.size + 0.5;
+				if(only) return down;
+				return this.downleft(pos, self, "down") && this.downright(pos, self, "down") && down;
+			},
+			left: function(pos, self, only = false) {
+				var newxy = {x: self.x - moveSpeed, y: self.y};
+				var left = maze[pos.y * 2 + 1][pos.x * 2] || self.x - beginX - pos.x * size - moveSpeed > player.size + 0.5;
+				if(only) return left;
+				return this.upleft(pos, self, "left") && this.downleft(pos, self, "left") && left;
+			},
+			right: function(pos, self, only = false) {
+				var newxy = {x: self.x + moveSpeed, y: self.y};
+				var right = maze[pos.y * 2 + 1][pos.x * 2 + 2] || beginX + (pos.x + 1) * size - self.x - moveSpeed > self.size + 0.5;
+				if(only) return right;
+				return this.upright(pos, self, "right") && this.downright(pos, self, "right") && right;
+			},
+			upleft: function(pos, self, state) {
+				var newxy;
+				if(state == "up") newxy = {x: self.x, y: self.y - moveSpeed};
+				else if(state == "left") newxy = {x: self.x - moveSpeed, y: self.y};
+				var upleft = distance({x: beginX + pos.x * size, y: beginY + pos.y * size}, newxy) > self.size - 0.005;
+				return upleft;
+			},
+			upright: function(pos, self, state) {
+				var newxy;
+				if(state == "up") newxy = {x: self.x, y: self.y - moveSpeed};
+				else if(state == "right") newxy = {x: self.x + moveSpeed, y: self.y};
+				var upright = distance({x: beginX + (pos.x + 1) * size, y: beginY + pos.y * size}, newxy) > self.size - 0.005;
+				return upright;
+			},
+			downleft: function(pos, self, state) {
+				var newxy;
+				if(state == "down") newxy = {x: self.x, y: self.y + moveSpeed};
+				else if(state == "left") newxy = {x: self.x - moveSpeed, y: self.y};
+				var downleft = distance({x: beginX + pos.x * size, y: beginY + (pos.y + 1) * size}, newxy) > self.size - 0.005;
+				return downleft;
+			},
+			downright: function(pos, self, state) {
+				var newxy;
+				if(state == "down") newxy = {x: self.x, y: self.y + moveSpeed};
+				else if(state == "right") newxy = {x: self.x + moveSpeed, y: self.y};
+				var downright = distance({x: beginX + (pos.x + 1) * size, y: beginY + (pos.y + 1) * size}, newxy) > self.size - 0.005;
+				return downright;
+			}
+		}
+
+		var player = new Player();
+		var map = {
+			37: false,
+			38: false,
+			39: false,
+			40: false,
+			65: false,
+			68: false,
+			83: false,
+			87: false
+		};
+
+		document.addEventListener("keydown", (e) => {
+			map[e.keyCode] = true;
+		});
+
+		document.addEventListener("keyup", (e) => {
+			map[e.keyCode] = false;
+		});
+
+		function move() {
+			var pos = player.block();
+			if(map[87] || map[38]) {
+				if(player.moveCheck.up(pos, player)) {
+					player.y -= moveSpeed;
+				} else if(player.moveCheck.up(pos, player, true)) {
+					if(!player.moveCheck.upleft(pos, player, "up")) {
+						x = player.x - beginX - pos.x * size;
+						y = player.y - beginY - pos.y * size;
+						player.x += Math.min(moveSpeed, moveSpeed * x / y);
+					} else {
+						x = beginX + (pos.x + 1) * size - player.x;
+						y = player.y - beginY - pos.y * size;
+						player.x -= Math.min(moveSpeed, moveSpeed * x / y);
+					}
+				}
+			}
+			if(map[83] || map[40]) {
+				if(player.moveCheck.down(pos, player)) {
+					player.y += moveSpeed;
+				} else if(player.moveCheck.down(pos, player, true)) {
+					if(!player.moveCheck.downleft(pos, player, "down")) {
+						x = player.x - beginX - pos.x * size;
+						y = beginY + (pos.y + 1) * size - player.y;
+						player.x += Math.min(moveSpeed, moveSpeed * x / y);
+					} else {
+						x = beginX + (pos.x + 1) * size - player.x;
+						y = beginY + (pos.y + 1) * size - player.y;
+						player.x -= Math.min(moveSpeed, moveSpeed * x / y);
+					}
+				}
+			}
+			if(map[65] || map[37]) {
+				if(player.moveCheck.left(pos, player)) {
+					player.x -= moveSpeed;
+				} else if(player.moveCheck.left(pos, player, true)) {
+					if(!player.moveCheck.upleft(pos, player, "left")) {
+						x = player.x - beginX - pos.x * size;
+						y = player.y - beginY - pos.y * size;
+						player.y += Math.min(moveSpeed, moveSpeed * y / x);
+					} else {
+						x = player.x - beginX - pos.x * size;
+						y = beginY + (pos.y + 1) * size - player.y;
+						player.y -= Math.min(moveSpeed, moveSpeed * y / x);
+					}
+				}
+			}
+			if(map[68] || map[39]) {
+				if(player.moveCheck.right(pos, player)) {
+					player.x += moveSpeed;
+				} else if(player.moveCheck.right(pos, player, true)) {
+					if(!player.moveCheck.upright(pos, player, "right")) {
+						x = beginX + (pos.x + 1) * size - player.x;
+						y = player.y - beginY - pos.y * size;
+						player.y += Math.min(moveSpeed, moveSpeed * y / x);
+					} else {
+						x = beginX + (pos.x + 1) * size - player.x;
+						y = beginY + (pos.y + 1) * size - player.y;
+						player.y -= Math.min(moveSpeed, moveSpeed * y / x);
+					}
+				}
+			}
+
+			playerContext.clearRect(0, 0, width, height);
+			player.draw();
+
+			endCheck();
+
+			requestAnimationFrame(move);
+		}
+		move();
+
+		function endCheck() {
+			if(player.block().x == mazeWidth - 1 && player.block().y == mazeHeight - 1) {
+				if(player.x > beginX + (mazeWidth - 0.7) * size && player.y > beginY + (mazeHeight - 0.7) * size) {
+					newMaze();
+				}
+			}
+		}
+
+		function newMaze() {
+			var h = numCheck(document.getElementById("custom-height").value);
+			var w = numCheck(document.getElementById("custom-width").value);
+			if(!h || !w) {
+				alert("input error");
+				return ;
+			}
+			if(h > 100 || w > 100) {
+				alert("h and w can't biger than 100;");
+				return ;
+			}
+			mazeHeight = h, mazeWidth = w;
+			setVar();
+			player = new Player();
+			ansCanvas.style["display"] = "none";
+			mazeGen();
+			mazeDraw();
+		}
+
+		function numCheck(numS) {
+			var num = 0;
+			for(var i = 0; i < numS.length; i++) {
+				if(numS[i] < '0' || '9' < numS[i]) return 0;
+				num = num * 10 + (numS[i].charCodeAt(0) - 48);
+			}
+			return num;
+		}
+
+		function onclickAns() {
+			if(ansCanvas.style["display"] == "none") {
+				ansCanvas.style["display"] = "block";
+			} else {
+				ansCanvas.style["display"] = "none";
+			}
+		}
+
+	</script>
+
+</html>

@@ -1,0 +1,39 @@
+<html>
+    
+    <meta charset="utf-8">
+
+    <head>
+        <title>Zch Page</title>
+		<link rel="icon" href="/images/icon_go_back_1000.png" type="image/x-icon">
+    </head>
+
+    <style>
+        @import "/pattern/basic.css";
+
+        .game-div {
+            width: 100%;
+            height: 150px;
+        }
+    </style>
+
+    <body>
+        <header>
+            <input type="checkbox" id="side-menu-but" onclick="onClick_sideMenu(this.checked);"> <label for="side-menu-but"></label>
+            <div id="side-menu">
+                <a class="side-menu-content" href="/index.html">Home</a>
+                <a class="side-menu-content" href="/game.html">Games</a>
+            </div>
+        </header>
+        <div id="side-menu-back" onclick="onClick_sideMenuBack(false);"></div>
+
+        <main>
+            <div class="game-div">
+                <a href="/game/maze.html">The Maze Game</a>
+            </div>
+        </main>
+
+    </body>
+
+    <script src="/pattern/header.js"></script>
+
+</html>
