@@ -69,6 +69,7 @@ main a:hover {
     position: fixed;
     top: 40px;
     left: 0px;
+    z-index: -1;
 
     display: flex;
     flex-direction: column;
